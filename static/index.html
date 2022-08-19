@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>DurgerKingBot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no, viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="MobileOptimized" content="176" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="robots" content="noindex, nofollow" />
+    <script src="/static/telegram-web-app.js?21"></script>
+    <script>
+        function setThemeClass() {
+            document.documentElement.className = Telegram.WebApp.colorScheme;
+        }
+        Telegram.WebApp.onEvent('themeChanged', setThemeClass);
+        setThemeClass();
+
+        function getJson(url) {
+            var request = new XMLHttpRequest();
+            request.open("GET", url, false);
+            request.send(null)
+            return JSON.parse(request.responseText);
+        }
+    </script>
+    <link href="/static/cafe.css?20" rel="stylesheet">
+</head>
+<body style="display:none">
+    <section class="cafe-page cafe-items" id="cafe_items">
+        <div class="cafe-item-shadow" id="cafeItemFirstShadow"></div>
+        <div class="cafe-item-shadow"></div>
+        <div class="cafe-item-shadow"></div>
+        <div class="cafe-item-shadow"></div>
+    </section>
+    <section class="cafe-page cafe-order-overview">
+        <div class="cafe-block">
+            <div class="cafe-order-header-wrap">
+                <h2 class="cafe-order-header">Your Order</h2>
+                <span class="cafe-order-edit js-order-edit">Edit</span>
+            </div>
+            <div class="cafe-order-items" id="cafe_order_items"></div>
+        </div>
+        <div class="cafe-text-field-wrap">
+            <textarea class="cafe-text-field js-order-comment-field cafe-block" rows="1" placeholder="Add comment…"></textarea>
+            <div class="cafe-text-field-hint">
+                Any special requests, details, final wishes etc.
+            </div>
+        </div>
+    </section>
+    
+    <script>
+        // p = document.createElement("p"); p.innerHTML = "test";
+
+        var cafeItems = document.getElementById("cafe_items");
+        var cafeItemFirstShadow = document.getElementById("cafeItemFirstShadow");
+
+        var cafeOrderItems = document.getElementById("cafe_order_items");
+        //var lastOrderItem = document.getElementById("last_order_item");
+
+        var food_items = getJson("/static/food_items.json");
+
+        function parseItem(i) {
+            var cafeItem = document.createElement("div");
+            var food_item = food_items[i];
+
+            cafeItem.setAttribute("class", "cafe-item js-item");
+            cafeItem.setAttribute("data-item-id", i);
+            cafeItem.setAttribute("data-item-price", food_item.price * 1000);
+
+            var div = document.createElement("div");
+            div.setAttribute("class", "cafe-item-counter js-item-counter");
+            div.innerHTML = i;
+            cafeItem.appendChild(div);
+
+            div = document.createElement("div");
+            div.setAttribute("class", "cafe-item-photo");
+            var picture = document.createElement("picture");
+            picture.setAttribute("class", "cafe-item-lottie js-item-lottie");
+            var source = document.createElement("source");
+            source.setAttribute("type", "application/x-tgsticker");
+            source.setAttribute("srcset", food_item.tgs);
+            picture.appendChild(source);
+            var img = document.createElement("img");
+            img.setAttribute("src", food_item.png);
+            img.setAttribute("style", "background-image: url('data:image/svg+xml;base64," + food_item.img + "');");
+            picture.appendChild(img);
+            div.appendChild(picture);
+            cafeItem.appendChild(div);
+
+            div = document.createElement("div");
+            div.setAttribute("class", "cafe-item-label");
+            var span = document.createElement("span");
+            span.setAttribute("class", "cafe-item-title");
+            span.innerHTML = food_item.name;
+            div.appendChild(span);
+            span = document.createElement("span");
+            span.setAttribute("class", "cafe-item-price");
+            span.innerHTML = "$" + food_item.price;
+            div.appendChild(span);
+            cafeItem.appendChild(div);
+
+            div = document.createElement("div");
+            div.setAttribute("class", "cafe-item-buttons");
+            var button = document.createElement("button");
+            button.setAttribute("class", "cafe-item-decr-button js-item-decr-btn button-item ripple-handler");
+            button.innerHTML = "<span class=\"ripple-mask\"><span class=\"ripple\"></span></span>";
+            div.appendChild(button);
+            button = document.createElement("button");
+            button.setAttribute("class", "cafe-item-incr-button js-item-incr-btn button-item ripple-handler");
+            button.innerHTML = "<span class=\"button-item-label\">Add</span>";
+            button.innerHTML += "<span class=\"ripple-mask\"><span class=\"ripple\"></span></span>";
+            div.appendChild(button);
+            cafeItem.appendChild(div);
+
+            cafeItems.insertBefore(cafeItem, cafeItemFirstShadow)
+        }
+
+        function parseOrderItem(i) {
+            var cafeOrderItem = document.createElement("div");
+            var food_item = food_items[i];
+
+            cafeOrderItem.setAttribute("class", "cafe-order-item js-order-item");
+            cafeOrderItem.setAttribute("data-item-id", i);
+
+            var div = document.createElement("div");
+            div.setAttribute("class", "cafe-order-item-photo");
+            var picture = document.createElement("picture");
+            picture.setAttribute("class", "cafe-item-lottie js-item-lottie");
+            var source = document.createElement("source");
+            source.setAttribute("type", "application/x-tgsticker");
+            source.setAttribute("srcset", food_item.tgs);
+            picture.appendChild(source);
+            var img = document.createElement("img");
+            img.setAttribute("src", food_item.png);
+            img.setAttribute("style", "background-image: url('data:image/svg+xml;base64," + food_item.img + "');");
+            div.innerHTML = i;
+            cafeOrderItem.appendChild(div);
+
+            div = document.createElement("div");
+            div.setAttribute("class", "cafe-order-item-label");
+            var div2 = document.createElement("div");
+            div2.setAttribute("class", "cafe-order-item-title");
+            div2.innerHTML = food_item.name + " <span class=\"cafe-order-item-counter\"><span class=\"js-order-item-counter\">1</span>x</span>";
+            div.appendChild(div2);
+            cafeOrderItem.appendChild(div);
+
+            div = document.createElement("div");
+            div.setAttribute("class", "cafe-order-item-price js-order-item-price");
+            div.innerHTML = "$" + food_item.price;
+            cafeOrderItem.appendChild(div);
+
+            cafeOrderItems.appendChild(cafeOrderItem);
+        }
+
+        for (let i = 0; i < food_items.length; i += 1) {
+            parseItem(i);
+            parseOrderItem(i);
+        }
+    </script>
+    <div class="cafe-status-wrap">
+        <div class="cafe-status js-status"></div>
+    </div>
+    <script src="/static/jquery.min.js"></script>
+    <script src="/static/cafe.js?25"></script>
+    <script src="/static/tgsticker.js?29"></script>
+    <script>
+        /*Telegram.WebApp.ready();
+
+        var initData = Telegram.WebApp.initData || '';
+        var initDataUnsafe = Telegram.WebApp.initDataUnsafe || {};
+
+        if (initDataUnsafe.query_id && initData) {
+            $('#webview_data_status').show();
+            $.ajax('/demo/checkData', {
+                type: 'POST',
+                data: {_auth: initData},
+                dataType: 'json',
+                success: function (result) {
+                    if (result.ok) {
+                        $('#webview_data_status').html('Hash is correct').addClass('ok');
+                    } else {
+                        $('#webview_data_status').html(result.error).addClass('err');
+                    }
+                },
+                error: function (xhr) {
+                    $('#webview_data_status').html('Server error').addClass('err');
+                }
+            });
+        }*/
+
+        var unsafeData = Telegram.WebApp.initDataUnsafe;
+        var userId = null;
+        var userHash = null;
+
+        if (unsafeData) {
+            userId = Telegram.WebApp.initDataUnsafe.user.id;
+            userHash = userId;
+
+            $.ajax('/check', {
+                type: 'POST',
+                data: {
+                    _auth: Telegram.WebApp.initData
+                },
+                dataType: 'json',
+                success: function (result) {
+                    if (!result.ok) {
+                        userId = null;
+                        userHash = null;
+                    }
+                },
+                error: function (xhr) {
+                    userId = null;
+                    userHash = null;
+                }
+            });
+        }
+
+        Cafe.init({"apiUrl": "\/webapp", "userId": userId, "userHash": userHash});
+    </script>
+</body>
+</html>
