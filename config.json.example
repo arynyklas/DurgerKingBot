@@ -1,0 +1,25 @@
+{
+    "bot_token": "",
+    "bot_provider_token": "",
+    "db_name": "DurgerKingBot",
+    "owners": [
+        1
+    ],
+    "web": {
+        "url": "https://domain.com{route}",
+        "port": 80,
+        "ssl": {
+            "active": false,
+            "paths": {
+                "fullchain": "",
+                "privkey": ""
+            }
+        }
+    },
+    "suggested_tip_amounts": [
+        100,
+        1000,
+        10000,
+        100000
+    ]
+}
